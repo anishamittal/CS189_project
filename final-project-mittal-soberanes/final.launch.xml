@@ -1,0 +1,33 @@
+<!-- ROS launchfile for testing local navigation
+ 
+ Author:
+    Annaleah Ernst
+ -->
+
+<launch>
+    <!-- Set up mappings for the localization package -->
+    <remap from="mobile_base/sensors/imu_data" to="imu_data" />
+    <remap from="mobile_base/odom" to="odom" />
+
+    <!-- 3dsensor.launch launches nodes for RGB and depth camera information -->
+    <include file="$(find turtlebot_bringup)/launch/3dsensor.launch" />
+    <!-- Launch Turtlebot -->
+    <include file="$(find turtlebot_bringup)/launch/minimal.launch" />
+    
+    <!-- Launch localization package -->
+    <include file="robot_pose_ekf.launch.xml">
+        <arg name="use_vo" value="false" />
+    </include>
+
+    <!-- Parameters used by Alvar AR tag tracking -->
+    <arg name="marker_size"          default="5.0" />
+    <arg name="max_new_marker_error" default="0.05" />
+    <arg name="max_track_error"      default="0.05" />
+    <arg name="cam_image_topic"      default="/camera/depth_registered/points" />
+    <arg name="cam_info_topic"       default="/camera/rgb/camera_info" />
+    <arg name="output_frame"         default="/camera_rgb_optical_frame" />
+
+    <!-- Set up AR tag tracking -->
+    <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+    
+</launch>
